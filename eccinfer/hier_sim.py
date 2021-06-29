@@ -111,5 +111,5 @@ if __name__ == '__main__':
     beta_samples=like.sample(1000,burn_steps=200,nwalkers=10)
     np.save('samples',beta_samples)
     fig=corner.corner(beta_samples,labels=['a','b'])
-    plt.savefig('./bd_run/beta_sampling.png')
+    plt.savefig('../results/warm_jupiter/beta_sampling.png')
 
