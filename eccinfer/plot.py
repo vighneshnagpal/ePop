@@ -61,9 +61,6 @@ def truth_v_inferred(post,savename,gridspec=False):
         fig_ax1.tick_params(axis='y', colors='white')
 
         fig_ax1.annotate(f'a = {a}, b = {b}', (0.5,6),c='yellow',size=15)
-
-
-
         
         fig_ax1.set_ylim([0,7])
         fig_ax1.set_xlim([0,1])
@@ -142,7 +139,7 @@ def truth_v_inferred(post,savename,gridspec=False):
         plt.legend()
         plt.savefig(savename)
 
-def plot_single(fname,a,b):
+def plot_single(fname,a,b,savename):
     '''
     Function that plots 
     '''
@@ -164,10 +161,11 @@ def plot_single(fname,a,b):
     plt.xlim([0,1])
     plt.title('50 systems, 4 points')
     plt.legend()
-    plt.savefig('inferred_distribution')
+    plt.savefig(savename)
 
 if __name__=='__main__':
     fname='../results/warm_jupiter/samples.npy'
+    savename='../results/warm_jupiter/inferred_distribution'
     a=0.867
     b=3.03
     plot_single(fname,a,b)
