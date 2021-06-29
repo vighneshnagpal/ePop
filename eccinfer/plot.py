@@ -15,129 +15,109 @@ from pdb import set_trace
 def load_posteriors(fnames):
     '''
     Loads the posteriors for the beta parameters that are saved 
-    as npy files.
+    as npy files. 
 
     args:
         fnames: filenames
     returns:
-        posts
+        posts: dictionary of posteriors indexed by filename.
     '''
     posts={f[13:-4]:np.load(f) for f in fnames}
     return posts
 
-def truth_v_inferred(post,savename,a,bgridspec=False):
+def truth_v_inferred(post,savename,a,b):
     '''
+    Function that creates the multipanel plot for the experiment using 
+    Gaussian uncertainties.
+    
+    Args:
+    
+        post (dict) : dictionary containing the beta samplings for each permutation 
+                      of N (number of systems) and  sigma (stdev of gaussian). Indexed 
+                      by strings of the form '{N}_{int(100*sigma)}'
+                      
+        savename (str): Save path for the generated plot
+        
+        a (float>0) : beta distribution parameter
+        b (float>0) : beta distribution parameter
+    
+    Returns: 
+        
+        None, but generates a plot that is saved to the specified path
+      
 
     '''
-    a = 0.867
-    b = 3.03
-
     rng  = np.linspace(0.0001,0.9999,10000)
     func = beta(a,b)
 
-    if gridspec:
-        
-        fig=plt.figure(figsize=(20,20))
+    fig=plt.figure(figsize=(20,20))
 
-        fig.patch.set_facecolor('navy')
+    fig.patch.set_facecolor('navy')
 
-        gs = fig.add_gridspec(nrows=5,ncols=4,hspace=0.1,wspace=0.1)
+    gs = fig.add_gridspec(nrows=5,ncols=4,hspace=0.1,wspace=0.1)
 
-        fig_ax1=fig.add_subplot(gs[0:2,:])
+    fig_ax1=fig.add_subplot(gs[0:2,:])
 
-        fig_ax1.set_facecolor('midnightblue')
+    fig_ax1.set_facecolor('midnightblue')
 
-        fig_ax1.plot(rng,func.pdf(rng),c='yellow',linestyle='dashed',linewidth=3)
-        fig_ax1.set_title('Underlying Distribution',size=20, c='white')
-        fig_ax1.set_xlabel('Eccentricity',size=15,c='white')
-        fig_ax1.set_ylabel('Probability Density',size=15,c='white')
+    fig_ax1.plot(rng,func.pdf(rng),c='yellow',linestyle='dashed',linewidth=3)
+    fig_ax1.set_title('Underlying Distribution',size=20, c='white')
+    fig_ax1.set_xlabel('Eccentricity',size=15,c='white')
+    fig_ax1.set_ylabel('Probability Density',size=15,c='white')
 
-        fig_ax1.spines['bottom'].set_color('white')
-        fig_ax1.spines['top'].set_color('white')
-        fig_ax1.spines['left'].set_color('white')
-        fig_ax1.spines['right'].set_color('white')
-        fig_ax1.xaxis.label.set_color('white')
-        fig_ax1.tick_params(axis='x', colors='white')
-        fig_ax1.tick_params(axis='y', colors='white')
+    fig_ax1.spines['bottom'].set_color('white')
+    fig_ax1.spines['top'].set_color('white')
+    fig_ax1.spines['left'].set_color('white')
+    fig_ax1.spines['right'].set_color('white')
+    fig_ax1.xaxis.label.set_color('white')
+    fig_ax1.tick_params(axis='x', colors='white')
+    fig_ax1.tick_params(axis='y', colors='white')
 
-        fig_ax1.annotate(f'a = {a}, b = {b}', (0.5,6),c='yellow',size=15)
-        
-        fig_ax1.set_ylim([0,7])
-        fig_ax1.set_xlim([0,1])
+    fig_ax1.annotate(f'a = {a}, b = {b}', (0.5,6),c='yellow',size=15)
 
-        for j,val in enumerate([5,10,20,50]):
-            
-            for i,sig in enumerate([20,5,1]):
-                
-                print(i,j)
-  
-                ax=fig.add_subplot(gs[i+2,j])
-                ax.set_facecolor('midnightblue')
+    fig_ax1.set_ylim([0,7])
+    fig_ax1.set_xlim([0,1])
 
-                ax.spines['bottom'].set_color('white')
-                ax.spines['top'].set_color('white')
-                ax.spines['left'].set_color('white')
-                ax.spines['right'].set_color('white')
-                ax.xaxis.label.set_color('white')
-                ax.tick_params(axis='x', colors='white')
-                ax.tick_params(axis='y', colors='white')
+    for j,val in enumerate([5,10,20,50]):
 
-                sim_name=f'{val}_{sig}'
+        for i,sig in enumerate([20,5,1]):
 
-                beta_post=post[sim_name]
-                
-                med_a=np.median(beta_post[:,0])
-                med_b=np.median(beta_post[:,1])
+            ax=fig.add_subplot(gs[i+2,j])
+            ax.set_facecolor('midnightblue')
 
-                med_func = beta(med_a,med_b)
+            ax.spines['bottom'].set_color('white')
+            ax.spines['top'].set_color('white')
+            ax.spines['left'].set_color('white')
+            ax.spines['right'].set_color('white')
+            ax.xaxis.label.set_color('white')
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
 
-                ax.plot(rng,med_func.pdf(rng),c='yellow',linewidth=5,alpha=0.8)
-                ax.annotate(f'N = {val}, $\\sigma$ = {sig/100}', (0.5,6),c='yellow',size=15)
+            sim_name=f'{val}_{sig}'
 
-                nrandom=50
-                for k in range(nrandom):
-                    idx=np.random.randint(0,beta_post.shape[0]-1)
-                    rnd_a,rnd_b=beta_post[idx]
-                    rnd_func=beta(rnd_a,rnd_b)
-                    ax.plot(rng,rnd_func.pdf(rng),c='pink',alpha=0.2)
-                
-                ax.set_ylim([0,7])
-                ax.set_xlim([0,1])
+            beta_post=post[sim_name]
 
-        fig.supxlabel('Eccentricity',size=20,c='white')
-        fig.supylabel('Probability Density',size=20,c='white')
-        
-        plt.savefig(savename)
+            med_a=np.median(beta_post[:,0])
+            med_b=np.median(beta_post[:,1])
 
-    
-    else:
+            med_func = beta(med_a,med_b)
 
-        fig=plt.figure(figsize=(12,6))
-        
-        plt.plot(rng,func.pdf(rng),label='Underlying Distribution',c='red',linestyle='dashed',linewidth=3)
+            ax.plot(rng,med_func.pdf(rng),c='yellow',linewidth=5,alpha=0.8)
+            ax.annotate(f'N = {val}, $\\sigma$ = {sig/100}', (0.5,6),c='yellow',size=15)
 
-        med_a=np.median(post[:,0])
-        med_b=np.median(post[:,1])
+            nrandom=50
+            for k in range(nrandom):
+                idx=np.random.randint(0,beta_post.shape[0]-1)
+                rnd_a,rnd_b=beta_post[idx]
+                rnd_func=beta(rnd_a,rnd_b)
+                ax.plot(rng,rnd_func.pdf(rng),c='pink',alpha=0.2)
 
-        med_func = beta(med_a,med_b)
+            ax.set_ylim([0,7])
+            ax.set_xlim([0,1])
 
-        plt.plot(rng,med_func.pdf(rng),label='Recovered Distribution',c='black',linewidth=5,alpha=0.8)
+    fig.supxlabel('Eccentricity',size=20,c='white')
+    fig.supylabel('Probability Density',size=20,c='white')
 
-        nrandom=15
-        for i in range(nrandom):
-            idx=np.random.randint(0,post.shape[0]-1)
-            rnd_a,rnd_b=post[idx]
-            rnd_func=beta(rnd_a,rnd_b)
-            plt.plot(rng,rnd_func.pdf(rng),c='grey',alpha=0.2)
-        
-        plt.xlabel('Eccentricity')
-        plt.ylabel('Normalised PDF')
-
-        plt.title('Recovering eccentricity distributions')
-        plt.ylim([0,7])
-        plt.xlim([0,1])
-        plt.legend()
-        plt.savefig(savename)
 
 def plot_single(fname,a,b,savename):
     '''
@@ -146,8 +126,8 @@ def plot_single(fname,a,b,savename):
     
     Args:
         fname (str) : path to saved beta sampling
-        a (float) : beta function parameter
-        b (float) : beta function parameter
+        a (float>0) : beta distribution parameter
+        b (float>0) : beta distribution parameter
         savename (str) : savepath for the generated plots
     
     Returns: 
