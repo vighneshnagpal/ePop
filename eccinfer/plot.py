@@ -29,8 +29,8 @@ def truth_v_inferred(post,savename,gridspec=False):
     '''
 
     '''
-    a = 2.3
-    b = 1.7
+    a = 0.867
+    b = 3.03
 
     rng  = np.linspace(0.0001,0.9999,10000)
     func = beta(a,b)
@@ -143,6 +143,9 @@ def truth_v_inferred(post,savename,gridspec=False):
         plt.savefig(savename)
 
 def plot_single(fname,a,b):
+    '''
+    Function that plots 
+    '''
     rng  = np.linspace(0.0001,0.9999,10000)
     func = beta(a,b)
     plt.plot(rng,func.pdf(rng),c='black',linestyle='dashed',linewidth=3,label='True')
