@@ -25,7 +25,7 @@ def load_posteriors(fnames):
     posts={f[13:-4]:np.load(f) for f in fnames}
     return posts
 
-def truth_v_inferred(post,savename,gridspec=False):
+def truth_v_inferred(post,savename,a,bgridspec=False):
     '''
 
     '''
