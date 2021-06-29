@@ -142,10 +142,8 @@ def truth_v_inferred(post,savename,gridspec=False):
         plt.legend()
         plt.savefig(savename)
 
-def plot_single(fname):
+def plot_single(fname,a,b):
     rng  = np.linspace(0.0001,0.9999,10000)
-    a = 2.3
-    b = 1.7
     func = beta(a,b)
     plt.plot(rng,func.pdf(rng),c='black',linestyle='dashed',linewidth=3,label='True')
     beta_samples=np.load(fname)
@@ -166,14 +164,10 @@ def plot_single(fname):
     plt.savefig('inferred_distribution')
 
 if __name__=='__main__':
-    # files=sorted(glob.glob('./beta_posts/*'))
-    # posts=load_posteriors(files)
-    # truth_v_inferred(posts,'summary',gridspec=True)
-    # truth_v_inferred(posts['50_5'],'50_1')
-    # truth_v_inferred(posts['20_5'],'20_5')
-    # truth_v_inferred(posts['10_5'],'10_5')
-    # truth_v_inferred(posts['5_5'],'5_5')
-    plot_single('samples.npy')
+    fname='../results/warm_jupiter/samples.npy'
+    a=0.867
+    b=3.03
+    plot_single(fname,a,b)
 
 
 
