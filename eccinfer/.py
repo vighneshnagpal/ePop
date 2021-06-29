@@ -108,27 +108,40 @@ def create_data_tables(system_observations,save=False):
     return astropy_tables
 
 
-def driver():
+def driver(beta_params,N,post_savedir,fig_savedir):
+    '''
+    A driver function that forward models the whole process. It first draws eccentricities 
+    from the underlying distribution (assumed to be a beta distribution parametrised by a and b)
+    for N systems and then simulates astrometry for each. Following this, orbits are fit to the
+    simulated astrometry and the resulting eccentricity posteriors are saved to the desired 
+    directory.
     
+    args: 
     
-    a=6
-    b=6
-    N = 2
+        beta_params (2-tuple of floats>0): contains the two beta distribution parameters, a and b 
+                                         which must both be floats>0
+        
+        N (int): number of systems
+        
+        post_savedir (str): path to the desired save directory for the posteriors
+        
+        fig_savedir (str): path to the desired save directory for the figures
+    
+    '''
+    
+    a,b= beta_params
     
     e_set   = draw_eccentricities(N,(a,b))
     inc_set = np.zeros(N)
 
-    print(e_set)
 
     systems={i: [e_set[i],inc_set[i]] for i in range(N)}
 
     orbital_data=generate_orbits(systems)
 
-    print(orbital_data)
 
     tables=create_data_tables(orbital_data)
 
-    print(tables)
 
     for i in range(N):
         orb_sys = orbitize.system.System(1, tables[i], 1.0,
@@ -138,21 +151,30 @@ def driver():
         _ = ofti_sampler.run_sampler(n_orbs)
         accepted_eccentricities = ofti_sampler.results.post[:, 1]
         
-        ### make histograms for the eccentricties
-        # fig=plt.figure()
-        # plt.hist(accepted_eccentricities,bins=50)
-        # plt.xlabel('ecc'); plt.ylabel('number of orbits')
-        # plt.savefig(f'~/eccentricities/run1/ecc_plots/sys_{np.round(systems[i][0],3)}.png')
+        ## make histograms for the eccentricties
+        fig=plt.figure()
+        plt.hist(accepted_eccentricities,bins=50)
+        plt.xlabel('ecc'); plt.ylabel('number of orbits')
+        fig_filename = 'sys_{np.round(systems[i][0],3)}.png'
+        fig_filename =  os.path.join(fig_savedir,fig_filename)
+        plt.savefig(fig_filename)
 
         ### save posteriors
-        filename  = f'sys_{np.round(systems[i][0],3)}.hdf5'
+        post_filename = f'sys_{np.round(systems[i][0],3)}.hdf5'
+        post_filename = os.path.join(post_savedir,post_filename)
+
         # hdf5_filename=os.path.join(save_path,filename)
-        ofti_sampler.results.save_results(filename)  # saves results object as an hdf5 file
+        ofti_sampler.results.save_results(post_filename)  # saves results object as an hdf5 file
 
 
 
 if __name__ == '__main__':
-    driver()
+    
+    beta_params=(0.867,3.03)
+    N=50
+    post_savedir='../posteriors/warm_jupiter'
+    fig_savedir='../ecc_plots/warm_jupiter'
+    driver(beta_params, N, post_savedir, fig_savedir)
 
 
  
