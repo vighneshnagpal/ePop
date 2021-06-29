@@ -106,7 +106,7 @@ class Pop_Likelihood(object):
 
 if __name__ == '__main__':
     
-    fnames=sorted(glob.glob('./bd_run/posteriors/*'))
+    fnames=sorted(glob.glob('../posteriors/warm_jupiter/*'))
     like=Pop_Likelihood(fnames)
     beta_samples=like.sample(1000,burn_steps=200,nwalkers=10)
     np.save('samples',beta_samples)
