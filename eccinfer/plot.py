@@ -141,7 +141,8 @@ def truth_v_inferred(post,savename,gridspec=False):
 
 def plot_single(fname,a,b,savename):
     '''
-    Function that plots 
+    Function that plots the underlying distribution, median of the recovered distributions,
+    and randomly sampled distributions from the beta sampling in the background. 
     '''
     rng  = np.linspace(0.0001,0.9999,10000)
     func = beta(a,b)
