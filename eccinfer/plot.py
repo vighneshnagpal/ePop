@@ -158,7 +158,7 @@ if __name__=='__main__':
     savename='../results/warm_jupiter/inferred_distribution'
     a=0.867
     b=3.03
-    plot_single(fname,a,b)
+    plot_single(fname,a,b,savename)
 
 
 
