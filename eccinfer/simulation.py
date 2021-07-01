@@ -45,12 +45,22 @@ def generate_orbits(systems):
         astro_epochs=np.linspace(51500,52000,2)
 
         # SETTING UNCERTAINTY TO 0 FOR NOW, CHANGE LATER
-        astro_err=0
+        sep_err=10
+        pa_err=0.1
         
         #generate predictions for astrometric epochs
         astro_set=kepler.calc_orbit(astro_epochs,sma,ecc,inc,aop,pan,tau,plx,mtot,mass_for_Kamp=mass_for_kamp)
         ras,decs=astro_set[0],astro_set[1]
         sep,pa=orbitize.system.radec2seppa(ras,decs)
+        
+        # Add gaussian noise to the model predictions
+        sep_jit=np.random.randn(len(sep))*sep_err
+        pa_jit=np.random.randn(len(pa))*pa_err
+
+        sep+=sep_jit
+        pa+=pa_jit
+        
+        # add these measurements (now incorporating noise) to the astrometry
         astrometry[sys]=[astro_epochs,sep,pa]
     
     return astrometry
