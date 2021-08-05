@@ -24,7 +24,11 @@ def load_posteriors(fnames):
 
 def truth_v_inferred(posts,true_beta,title,savename,first_row=False):
     '''
-    Function to create a multipanel plot like (INSERT path).
+    Function to create a multipanel plot that shows the result of varying the
+    sample size and observational precision on the ability to recover an underlying
+    distribution via hierarchical MCMC. 
+    
+    See '../example_plots/summary.png' for a example
 
     Args:
 
@@ -213,6 +217,8 @@ def plot_single(fname,true_beta,savename,title=None,true_label='underlying'):
     A function to plot the inferred beta distributions from hierarchical MCMC samples
     as well as a second beta distribution (which could be any other beta distribution you 
     want to contrast with the inferred, such as an underlying distribution or a previous result)
+    
+    See '../example_plots/bd_uniform_inferred.png' for an example plot.
 
     Args:
 
