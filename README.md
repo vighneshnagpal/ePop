@@ -1,3 +1,3 @@
-# Eccentricity-Distributions
+# eccPop
 
-Code for Vighnesh's summer research project on using hierarchical Bayesian analysis to constrain population level eccentricity distributions for substellar companions
+Package to infer population level eccentricity distributions using hierarchical MCMC. 
