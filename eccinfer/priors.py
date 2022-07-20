@@ -1,6 +1,7 @@
 import sys
 import abc
-import numpy as np 
+import numpy as np
+import scipy.special as sp 
 
 # Python 2 & 3 handle ABCs differently
 if sys.version_info[0] < 3:
@@ -23,6 +24,51 @@ class Prior(ABC):
     @abc.abstractmethod
     def compute_logprob(self, a, b):
         pass
+
+
+class UniformPrior(Prior):
+    
+    def __init__(self, minval, maxval):
+        self.minval = minval
+        self.maxval = maxval
+
+    def __repr__(self):
+        return "Uniform"
+
+    def draw_samples(self, num_samples):
+        """
+        Draw positive samples from a Gaussian distribution.
+        Negative samples will not be returned.
+        Args:
+            num_samples (float): the number of samples to generate
+        Returns:
+            numpy array of float: samples drawn from the appropriate
+            Gaussian distribution. Array has length `num_samples`.
+        """
+        # sample from a uniform distribution in log space
+        a_samples = np.random.uniform(self.minval, self.maxval, num_samples)
+        b_samples = np.random.uniform(self.minval, self.maxval, num_samples)
+
+        samples=np.vstack((a_samples,b_samples)).T
+
+        return samples
+
+    def compute_logprob(self, a, b):
+        """
+        Returns the log of the prior probability for a tuple of the beta 
+        hyperparameters (a,b).
+
+        """
+        normalizer = self.maxval - self.minval
+
+        a_logprob = -np.log(1/normalizer)
+        b_logprob = -np.log(1/normalizer) 
+
+        logprob=a_logprob+b_logprob
+
+        return logprob
+
+    
 
 
 class GaussianPrior(Prior):
@@ -150,7 +196,6 @@ class LogUniformPrior(Prior):
 
         samples=np.vstack((a_samples,b_samples)).T
 
-
         return samples
 
     def compute_logprob(self, a, b):
@@ -167,4 +212,109 @@ class LogUniformPrior(Prior):
         logprob=a_logprob+b_logprob
 
         return logprob
+
+class LogNormalPrior(Prior):
+    """
+    This is the probability distribution :math:`p(x) \\propto 1/x`
+    The __init__ method should take in a "min" and "max" value
+    of the distribution, which correspond to the domain of the prior.
+    (If this is not implemented, the prior has a singularity at 0 and infinite
+    integrated probability).
+    Args:
+        mu (float): Mean of the logarithm of the distribution
+        sigma (float): Standard Deviation of the logarithm of the distribution
+    """
+
+    def __init__(self, mu, sigma):
+        self.mu = mu
+        self.sigma = sigma
+
+    def __repr__(self):
+        return "LogNormal"
+
+    def draw_samples(self, num_samples):
+        """
+        Draw samples from the log normal distribution
+        Args:
+            num_samples (float): the number of samples to generate
+        Returns:
+            np.array:  samples ranging from [``minval``, ``maxval``) as floats.
+        """
+        # sample from a uniform distribution in log space
+        a_samples = np.random.normal(self.mu, self.sigma, num_samples)
+        b_samples = np.random.normal(self.mu, self.sigma, num_samples)
+        # convert from log space to linear space
+        a_samples = np.exp(a_samples)
+        b_samples = np.exp(b_samples)
+
+        samples=np.vstack((a_samples,b_samples)).T
+
+        return samples
+
+    def compute_logprob(self, a, b):
+        """
+        Returns the log of the prior probability for a tuple of the beta 
+        hyperparameters (a,b).
+
+        """
+
+        a_logprob = (-1*((np.log(a)-self.mu)**2)/(2*self.sigma**2))/(a*self.sigma*np.sqrt(2*np.pi))
+        b_logprob = (-1*((np.log(b)-self.mu)**2)/(2*self.sigma**2))/(a*self.sigma*np.sqrt(2*np.pi))
+
+        logprob=a_logprob+b_logprob
+
+        return logprob
+
+
+class GammaPrior(Prior):
+    """
+    This is the probability distribution :math:`p(x) \\propto 1/x`
+    The __init__ method should take in a "min" and "max" value
+    of the distribution, which correspond to the domain of the prior.
+    (If this is not implemented, the prior has a singularity at 0 and infinite
+    integrated probability).
+    Args:
+        mu (float): Mean of the logarithm of the distribution
+        sigma (float): Standard Deviation of the logarithm of the distribution
+    """
+
+    def __init__(self, k, theta):
+        self.k = k
+        self.theta = theta
+
+    def __repr__(self):
+        return "Gamma"
+
+    def draw_samples(self, num_samples):
+        """
+        Draw samples from the log normal distribution
+        Args:
+            num_samples (float): the number of samples to generate
+        Returns:
+            np.array:  samples ranging from [``minval``, ``maxval``) as floats.
+        """
+        # sample from a uniform distribution in log space
+        a_samples = np.random.gamma(self.k, self.theta,num_samples)
+        b_samples = np.random.gamma(self.k, self.theta, num_samples)
+
+        samples=np.vstack((a_samples,b_samples)).T
+
+        return samples
+
+    def compute_logprob(self, a, b):
+        """
+        Returns the log of the prior probability for a tuple of the beta 
+        hyperparameters (a,b).
+
+        """
+
+        a_logprob = np.log(((a**(self.k-1))*(np.exp(-a/self.theta)))/(((self.theta)**self.k)*sp.gamma(a)))
+        b_logprob = np.log(((b**(self.k-1))*(np.exp(-b/self.theta)))/(((self.theta)**self.k)*sp.gamma(b)))
+
+        logprob=a_logprob+b_logprob
+
+        return logprob
+
+
+
 
