@@ -6,22 +6,6 @@ import matplotlib.pyplot as plt
 import glob
 from pdb import set_trace
 
-
-def load_posteriors(fnames):
-    '''
-    Loads the posteriors for the beta parameters that are saved 
-    as npy files into a dictionary format indexed by strings like 
-    '5_20'.
-
-    args:
-        fnames: filenames
-    returns:
-        posts
-    '''
-    print([f[45:-4] for f in fnames])
-    posts={f[45:-4]: np.load(f) for f in fnames}
-    return posts
-
 def truth_v_inferred(posts,true_beta,title,savename,first_row=False):
     '''
     Function to create a multipanel plot that shows the result of varying the
@@ -211,8 +195,9 @@ def truth_v_inferred(posts,true_beta,title,savename,first_row=False):
         
         plt.suptitle('Experiment with Gaussian Posteriors using a log-uniform prior',size=40,c='white')
         plt.savefig(savename)
+        
 
-def plot_single(fname,true_beta,savename,title=None,true_label='underlying'):
+def plot_single(fname,true_beta,savename,title=None,true_label='underlying',nrandom=100):
     '''
     A function to plot the inferred beta distributions from hierarchical MCMC samples
     as well as a second beta distribution (which could be any other beta distribution you 
@@ -226,15 +211,18 @@ def plot_single(fname,true_beta,savename,title=None,true_label='underlying'):
 
         true_beta (tuple of positive floats): Tuple of the form (a,b), where a,b 
                                               are the beta parameters corresponding 
-                                              to the second distribution you are 
-                                              plotting
-
+                                              to the distribution that is being compared
+                                              against
+                                              
         savename (str): Savepath for the generated plot
 
         title (str): Title of the plot. Defaults to None
 
-        true_label (str): The label you want for the second beta distribution on the 
+        true_label (str): Label for the second beta distribution on the 
                           plot. Defaults to 'underlying'.
+                          
+        nrandom (int): Number of randomly drawn distributions from the hierarchical 
+                       MCMC samples that are plotted. Defaults to 100
 
     
     Returns:
@@ -248,7 +236,6 @@ def plot_single(fname,true_beta,savename,title=None,true_label='underlying'):
     fig=plt.figure(figsize=(8,6))
     plt.plot(rng,func.pdf(rng),c='black',linestyle='dashed',linewidth=3,label=true_label)
     beta_samples=np.load(fname)
-    nrandom=30
 
     for i in range(nrandom):
         idx=np.random.randint(0,beta_samples.shape[0]-1)
@@ -258,44 +245,23 @@ def plot_single(fname,true_beta,savename,title=None,true_label='underlying'):
     
     med_a,med_b=np.median(beta_samples,axis=0)[0],np.median(beta_samples,axis=0)[1]
     med_func=beta(med_a,med_b)
-    plt.plot(rng,med_func.pdf(rng),c='red',linewidth=5,alpha=0.8,label='Log-uniform prior')
+    plt.plot(rng,med_func.pdf(rng),c='red',linewidth=5,alpha=0.8,label='Median')
     
-    plt.ylim([0,7])
     plt.xlim([0,1])
+    plt.ylim([0,10])
+
 
     plt.xlabel('Eccentricity')
     plt.ylabel('Probability Density')
 
     if title is None:
-        plt.title('50 systems, 4 points')
+        pass
     else:
         plt.title(title)
+        
     plt.legend()
     plt.savefig(savename)
     plt.close()
     return fig
-
-if __name__=='__main__':
-    files=sorted(glob.glob('./gaussian_experiment/log_uniform/beta_posts/*'))
-    print(files[0][-14:])
-    posts=load_posteriors(files)
-    truth_v_inferred(posts,'onerow_log_uniform',first_row=True)
-
-    # plot_single('./ogpaper/gp_loguniform_10.npy','./ogpaper/gp_loguniform_inferred','Comparing the eccentricity distributions of warm jupiters and imaged giants')
-    # plot_single('./ogpaper/gp_uniform_1000.npy','./ogpaper/gp_uniform_inferred','A uniform prior applied to the giant planet sample')
-
-    # plot_single('./ogpaper/bd_loguniform_10.npy','./ogpaper/bd_loguniform_inferred','Inferred population level distribution for the brown dwarf sample')
-    # plot_single('./ogpaper/bd_uniform_1000.npy','./ogpaper/bd_uniform_inferred','A uniform prior applied to the brown dwarf sample')
-
-    # plot_single('./ogpaper/overall_loguniform_10.npy','./ogpaper/overall_loguniform_inferred','Inferred distribution for the overall substellar companion sample')
-    # plot_single('./ogpaper/overall_uniform_1000.npy','./ogpaper/overall_uniform_inferred','A uniform prior applied to the overall sample')
-
-
-    # fnames=sorted(glob.glob('./gaussian_experiment/uniform/beta_posts/*'))
-    # posts=load_posteriors(fnames)
-    # print(posts.keys())
-    # truth_v_inferred(posts,'./gaussian_experiment/uniform/panel.png')
-
-
 
 
