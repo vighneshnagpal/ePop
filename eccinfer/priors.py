@@ -14,7 +14,7 @@ class Prior(ABC):
     """
     Abstract base class for prior objects.
     All prior objects should inherit from this class.
-    Written: Sarah Blunt, 2018
+    
     """
 
     @abc.abstractmethod
@@ -73,16 +73,16 @@ class UniformPrior(Prior):
 
 class GaussianPrior(Prior):
 
-    """Gaussian prior.
-    .. math::
-        log(p(x|\\sigma, \\mu)) \\propto \\frac{(x - \\mu)}{\\sigma}
+""" 
+    Gaussian prior. If no_negatives is set to True, this is technically a Truncated Gaussian prior
+  
     Args:
         mu (float): mean of the distribution
         sigma (float): standard deviation of the distribution
         no_negatives (bool): if True, only positive values will be drawn from
             this prior, and the probability of negative values will be 0 (default:True).
-    (written) Sarah Blunt, 2018
-    """
+
+"""
 
     def __init__(self, mu, sigma, no_negatives=True):
         self.mu = mu
@@ -117,12 +117,17 @@ class GaussianPrior(Prior):
 
             while a_num_bad != 0 or b_num_bad!=0:
 
+                # identify indices corresponding to negative values 
+                
                 a_bad_samples = np.where(a_samples < 0)[0]
                 a_num_bad = len(a_bad_samples)
 
                 b_bad_samples = np.where(b_samples < 0)[0]
                 b_num_bad = len(b_bad_samples)
 
+                # replace negative values with newly drawn numbers from the Gaussian prior
+                # the loop will continue until all values in the array are positive
+                
                 a_samples[a_bad_samples] = np.random.normal(
                     loc=self.mu, scale=self.sigma, size=a_num_bad
                 )
@@ -132,7 +137,6 @@ class GaussianPrior(Prior):
                 )
 
         samples=np.vstack((a_samples,b_samples)).T
-        print (samples.shape)
 
         return samples
 
@@ -159,7 +163,7 @@ class GaussianPrior(Prior):
 
 class LogUniformPrior(Prior):
     """
-    This is the probability distribution :math:`p(x) \\propto 1/x`
+    This is the probability distribution : p(x) = 1/x`
     The __init__ method should take in a "min" and "max" value
     of the distribution, which correspond to the domain of the prior.
     (If this is not implemented, the prior has a singularity at 0 and infinite
@@ -215,14 +219,12 @@ class LogUniformPrior(Prior):
 
 class LogNormalPrior(Prior):
     """
-    This is the probability distribution :math:`p(x) \\propto 1/x`
-    The __init__ method should take in a "min" and "max" value
-    of the distribution, which correspond to the domain of the prior.
-    (If this is not implemented, the prior has a singularity at 0 and infinite
-    integrated probability).
+    Log-normal distribution prior. 
+
     Args:
         mu (float): Mean of the logarithm of the distribution
-        sigma (float): Standard Deviation of the logarithm of the distribution
+        sigma (positive float): Standard Deviation of the logarithm of the distribution
+    
     """
 
     def __init__(self, mu, sigma):
@@ -238,7 +240,7 @@ class LogNormalPrior(Prior):
         Args:
             num_samples (float): the number of samples to generate
         Returns:
-            np.array:  samples ranging from [``minval``, ``maxval``) as floats.
+            np.array:  samples as floats.
         """
         # sample from a uniform distribution in log space
         a_samples = np.random.normal(self.mu, self.sigma, num_samples)
@@ -268,14 +270,10 @@ class LogNormalPrior(Prior):
 
 class GammaPrior(Prior):
     """
-    This is the probability distribution :math:`p(x) \\propto 1/x`
-    The __init__ method should take in a "min" and "max" value
-    of the distribution, which correspond to the domain of the prior.
-    (If this is not implemented, the prior has a singularity at 0 and infinite
-    integrated probability).
+    A prior following a functional form from the Gamma distribution. 
     Args:
-        mu (float): Mean of the logarithm of the distribution
-        sigma (float): Standard Deviation of the logarithm of the distribution
+        k (float): shape parameter
+        theta (float): scale parameter
     """
 
     def __init__(self, k, theta):
@@ -287,11 +285,11 @@ class GammaPrior(Prior):
 
     def draw_samples(self, num_samples):
         """
-        Draw samples from the log normal distribution
+        Draw samples from the Gamma prior
         Args:
             num_samples (float): the number of samples to generate
         Returns:
-            np.array:  samples ranging from [``minval``, ``maxval``) as floats.
+            np.array:  samples as floats.
         """
         # sample from a uniform distribution in log space
         a_samples = np.random.gamma(self.k, self.theta,num_samples)
