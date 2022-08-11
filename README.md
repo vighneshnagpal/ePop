@@ -4,6 +4,7 @@ Package to infer population level eccentricity distributions using hierarchical 
 
 ## quick start code
 
+```
 import ePop 
 import glob
     
@@ -17,3 +18,4 @@ like=ePop.hier_sim.Pop_Likelihood(posteriors=posts,prior='log_uniform')
 
 # sample the hyperparameters using MCMC
 beta_samples=like.sample(2000,burn_steps=500,nwalkers=30)
+```
