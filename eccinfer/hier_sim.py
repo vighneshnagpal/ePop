@@ -126,18 +126,6 @@ class Pop_Likelihood(object):
         
         return log_likelihood + log_prior_prob
 
-    def map_fit(self):
-        '''
-        Calculate max likelihood value for the beta distribution 
-        parameters. 
-
-        '''
-        p0 = (20,20)
-        
-        map_fit = minimize(-1*self.calc_likelihood,p0,method='Powell',
-                            bounds=( (0,1000), (0,1000) ) )
-
-        return map_fit.x
 
 
     def sample(self,nsteps,burn_steps=200,nwalkers=100):
