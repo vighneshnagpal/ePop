@@ -102,7 +102,7 @@ class Pop_Likelihood(object):
 
         Args: 
 
-            beta_params (tuple of floats): Values of the beta parameters for 
+            beta_params (2-tuple of floats): Values of the beta parameters for 
                                            which to evaluate the likelihood. 
         returns:
 
