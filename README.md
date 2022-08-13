@@ -6,7 +6,6 @@ Package to infer population level eccentricity distributions using hierarchical 
 
 ```
 import ePop 
-import glob
     
 fnames=sorted(glob.glob('./posteriors/*'))
 
