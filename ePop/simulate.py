@@ -13,13 +13,16 @@ import astropy.units as u
 import astropy.constants as consts
 
 
-def generate_orbits(systems,orb_fraction=0.05,npoints=5,start_mjd=51500,err_level=None):
+def generate_orbits(systems,orb_fraction=0.05,npoints=3,start_mjd=51500,err_level=None):
     '''
     Generates orbits for multiple systems in one go.
     args: 
         systems (dict): Dictionary ordered by system index that contains
                         the eccentricties and inclinations for each.
-        orb_fraction (flt in [0,1]): The fraction of orbital coverage your data points cover. Default is 0.1
+                        
+        orb_fraction (float betweem 0 and 1): The fraction of orbital coverage your data points cover. 
+                                     Default is 0.05
+        
         npoints (int): Number of data points spanning the observation window. Assumed to be evenly spaced. Defaults to 3.
         err_level (Tuple or None): Tuple of the form (sep_err, pa_err) for astrometric data. None setting defaults to (10mas, 0.1 deg)
     
@@ -141,19 +144,40 @@ def create_data_tables(system_observations,err_level=None,save=False):
     return astropy_tables
 
 
-def simulate_sample():
+def simulate_sample(beta_params, N=10, orb_fraction=0.05, npoints=3):
+    '''
+    Code to forward model the eccentricity posteriors of a sample of imaged companions drawn from 
+    an underlying population level eccentricity distribution. 
     
+    Args: 
     
-    a=0.867
-    b=3.03
-    N = 10
+        beta_params (tuple of floats): A tuple of the form (a, b), where a and b are positive 
+                                       floats that a re the Beta distribution hyperparameters
+                                       corresponding to the underlying population level
+                                       eccentricity distribution of the simulated sample.
+                                       
+        N (int): Number of objects in the forward modeled sample. Defaults to 10.
+        
+        orb_fraction (float between 0 and 1): Orbital fraction covered by the simulated 
+                                              astrometry for each object in the forward
+                                              modeled sample. Defaults to 0.05.
+                                              
+        npoints (int): Number of simulated astrometric points for each system in the forward
+                       modeled sample. Defaults to 3. 
+                       
+    Returns:
+    
+        ecc_posteriors (list of 1D arrays): Set of N eccentricity posteriors, one for each object
+                                            in the simulated sample.
+    '''
+    a,b = beta_params
     
     e_set   = draw_eccentricities(N,(a,b))
     inc_set = np.zeros(N)
 
     systems={i: [e_set[i],inc_set[i]] for i in range(N)}
 
-    orbital_data=generate_orbits(systems)
+    orbital_data=generate_orbits(systems,orb_fraction=orb_fraction,npoints=npoints)
 
     tables=create_data_tables(orbital_data)
     
