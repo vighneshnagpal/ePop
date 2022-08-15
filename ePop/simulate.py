@@ -54,8 +54,6 @@ def generate_orbits(systems,orb_fraction=0.05,npoints=3,start_mjd=51500,err_leve
         # compute orbital period
         period = np.sqrt(4 * np.pi**2.0 * (sma * u.AU)**3 / (consts.G * (mtot * u.Msun)))
         period = period.to(u.day).value
-
-        print(sma,orb_fraction*period)
         
         #epochs and errors for astrometry
         end_mjd=start_mjd+orb_fraction*period
