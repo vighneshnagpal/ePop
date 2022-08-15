@@ -24,7 +24,7 @@ def generate_orbits(systems,orb_fraction=0.05,npoints=5,start_mjd=51500,err_leve
 
         orb_fraction (flt in [0,1]): The fraction of orbital coverage your data points cover. Default is 0.1
 
-        npoints (int): Number of data points spanning the observation window. Assumed to be evenly spaced
+        npoints (int): Number of data points spanning the observation window. Assumed to be evenly spaced. Defaults to 3.
 
         err_level (Tuple or None): Tuple of the form (sep_err, pa_err) for astrometric data. None setting defaults to (10mas, 0.1 deg)
 
@@ -155,12 +155,12 @@ def create_data_tables(system_observations,err_level=None,save=False):
     return astropy_tables
 
 
-def driver():
+def simulate_sample():
     
     
     a=0.867
     b=3.03
-    N = 50
+    N = 10
     
     e_set   = draw_eccentricities(N,(a,b))
     inc_set = np.zeros(N)
@@ -170,7 +170,8 @@ def driver():
     orbital_data=generate_orbits(systems)
 
     tables=create_data_tables(orbital_data)
-
+    
+    ecc_posteriors=[]
     for i in range(N):
         orb_sys = orbitize.system.System(1, tables[i], 1.0,
                                     40, mass_err=0.05, plx_err=0.1)
@@ -179,22 +180,12 @@ def driver():
         _ = ofti_sampler.run_sampler(n_orbs,num_cores=20)
         accepted_eccentricities = ofti_sampler.results.post[:, 1]
         
-        ### make histograms for the eccentricties
-        fig=plt.figure()
-        plt.hist(accepted_eccentricities,bins=50)
-        plt.xlabel('ecc'); plt.ylabel('number of orbits')
-        plt.savefig(f'./ecc_plots/sys_{np.round(systems[i][0],3)}.png')
-
-        ### save posteriors
-        save_path = '/data/user/vnagpal/eccentricities/e2e_sims/5_5'
-        filename  = f'sys_{np.round(systems[i][0],3)}.hdf5'
-        hdf5_filename=os.path.join(save_path,filename)
-        ofti_sampler.results.save_results(hdf5_filename)  # saves results object as an hdf5 file
+        ecc_posteriors.append(accepted_eccentricities)
+        
+        
+    return ecc_posteriors
 
 
-
-if __name__ == '__main__':
-    driver()
 
 
     
