@@ -36,7 +36,7 @@ class Pop_Likelihood(object):
                                     allowed to take on. Defaults to 100.
                                                     
     '''
-    def __init__(self,fnames=None,posteriors=None, prior=None,beta_max=100,mu=1.0,std=0.5):
+    def __init__(self,fnames=None,posteriors=None, prior=None,beta_max=100,mu=0.69,std=1.0):
         
         if fnames is not None:
 
