@@ -6,7 +6,7 @@ import emcee
 from scipy.optimize import minimize
 import glob
 import corner
-import priors
+import ePop.priors as priors
 
 
 
