@@ -6,15 +6,18 @@ Package to infer population level eccentricity distributions using hierarchical 
 
 ```
 import ePop 
-    
-fnames=sorted(glob.glob('./posteriors/*'))
 
-# load individual eccentricity distributions
-posts=[np.load(f) for f in fnames]
 
-# create Likelihood object and choose prior
-like=ePop.hier_sim.Pop_Likelihood(posteriors=posts,prior='log_uniform')
+# simulate a forward modelled sample of 10 imaged companion eccentricity posteriors drawn from the RV exoplanet distribution from Kipping (2010). 
+
+a, b = 0.87, 3.03
+ecc_posteriors=ePop.simulate.simulate_sample((a,b))
+
+# create Likelihood object and choose hyperprior
+like=ePop.hier_sim.Pop_Likelihood(posteriors=ecc_posteriors,prior='Gaussian')
 
 # sample the hyperparameters using MCMC
-beta_samples=like.sample(2000,burn_steps=500,nwalkers=30)
+beta_samples=like.sample(1000,burn_steps=500,nwalkers=30)
+
+
 ```
