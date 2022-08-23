@@ -72,15 +72,15 @@ class UniformPrior(Prior):
 
 class GaussianPrior(Prior):
 
-""" 
-    Gaussian prior. If no_negatives is set to True, this is technically a Truncated Gaussian prior
-  
-    Args:
-        mu (float): mean of the distribution
-        sigma (float): standard deviation of the distribution
-        no_negatives (bool): if True, only positive values will be drawn from
-            this prior, and the probability of negative values will be 0 (default:True).
-"""
+    """ 
+        Gaussian prior. If no_negatives is set to True, this is technically a Truncated Gaussian prior
+    
+        Args:
+            mu (float): mean of the distribution
+            sigma (float): standard deviation of the distribution
+            no_negatives (bool): if True, only positive values will be drawn from
+                this prior, and the probability of negative values will be 0 (default:True).
+    """
 
     def __init__(self, mu, sigma, no_negatives=True):
         self.mu = mu
