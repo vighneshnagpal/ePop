@@ -5,8 +5,8 @@ Package to infer population level eccentricity distributions using hierarchical 
 ## Quick start code
 
 ```
-import ePop 
-
+import ePop.simulate
+import ePop.hier_sim
 
 # simulate a forward modelled sample of 10 imaged companion eccentricity posteriors 
 # drawn from the RV exoplanet distribution from Kipping (2010). 
