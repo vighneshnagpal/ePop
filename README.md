@@ -2,6 +2,16 @@
 
 Package to infer population level eccentricity distributions using hierarchical MCMC. 
 
+## Installation
+
+First, (make sure you have orbitize! installed)[https://orbitize.readthedocs.io/en/latest/installation.html].
+
+Next, from the commmand line:
+
+$ git clone https://github.com/vighnesh-nagpal/ePop.git
+$ cd ePop
+$ pip install -e . --upgrade
+
 ## Quick start code
 
 ```
