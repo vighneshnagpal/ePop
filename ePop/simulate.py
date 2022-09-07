@@ -185,7 +185,7 @@ def simulate_sample(beta_params, N=10, orb_fraction=0.05, npoints=3):
                                     40, mass_err=0.05, plx_err=0.1)
         ofti_sampler = sampler.OFTI(orb_sys)
         n_orbs = 1000
-        _ = ofti_sampler.run_sampler(n_orbs,num_cores=20)
+        _ = ofti_sampler.run_sampler(n_orbs,num_cores=1)
         accepted_eccentricities = ofti_sampler.results.post[:, 1]
         
         ecc_posteriors.append(accepted_eccentricities)
