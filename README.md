@@ -9,7 +9,9 @@ First, (make sure you have orbitize! installed)[https://orbitize.readthedocs.io/
 Next, from the commmand line:
 
 $ git clone https://github.com/vighnesh-nagpal/ePop.git
+
 $ cd ePop
+
 $ pip install -e . --upgrade
 
 ## Quick start code
