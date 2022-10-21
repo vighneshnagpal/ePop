@@ -28,7 +28,7 @@ a, b = 0.87, 3.03
 
 
 # this step simulates realistic eccentricity posteriors for a set of systems with 
-# eccentricities drawn from the (0.87, 3.03) Beta Distribution. 
+# eccentricities drawn from the (0.87, 3.03) Beta Distribution. (Time-Intensive)
 
 ecc_posteriors=ePop.simulate.simulate_sample((a,b))
 
