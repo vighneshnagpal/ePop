@@ -4,7 +4,7 @@ Package to infer population level eccentricity distributions using hierarchical 
 
 ## Installation
 
-First, (make sure you have orbitize! installed)[https://orbitize.readthedocs.io/en/latest/installation.html].
+First, (make sure you have orbitize! installed) [https://orbitize.readthedocs.io/en/latest/installation.html].
 
 Next, from the commmand line:
 
@@ -25,15 +25,21 @@ import ePop.hier_sim
 
 
 a, b = 0.87, 3.03
+
+
+# this step simulates realistic eccentricity posteriors for a set of systems with 
+# eccentricities drawn from the (0.87, 3.03) Beta Distribution. 
+
 ecc_posteriors=ePop.simulate.simulate_sample((a,b))
 
 
 # create Likelihood object and choose hyperprior
-
 like=ePop.hier_sim.Pop_Likelihood(posteriors=ecc_posteriors,prior='Gaussian')
 
+
 # NOTE: you can also load in samples from already saved eccentricity posteriors and
-# initialise a likelihod object as above.
+# initialise a likelihod object as above. In this case, ecc_posteriors must be a list
+# of 1D eccentricity samples. 
 
 
 # sample the hyperparameters using MCMC
