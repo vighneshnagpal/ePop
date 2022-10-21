@@ -38,7 +38,8 @@ like=ePop.hier_sim.Pop_Likelihood(posteriors=ecc_posteriors,prior='Gaussian')
 
 
 # NOTE: you can also load in samples from already saved eccentricity posteriors and
-# initialise a likelihod object as above. In this case, ecc_posteriors must be a list
+# initialise a likelihod object as above. ecc_posteriors must be a list of which the
+# elements are the eccentricity samples for individual systems in the dataset. 
 # of 1D eccentricity samples. 
 
 
