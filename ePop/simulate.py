@@ -13,7 +13,7 @@ import astropy.units as u
 import astropy.constants as consts
 
 
-def generate_orbits(systems,orb_fraction=0.05,npoints=3,start_mjd=51500,err_level=None):
+def generate_orbits(systems,orb_fraction=0.02,npoints=3,start_mjd=51500,err_level=None):
     '''
     Generates orbits for multiple systems in one go.
     args: 
