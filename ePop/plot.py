@@ -185,63 +185,186 @@ def truth_v_inferred(posts,true_beta,title,savename,first_row=False):
         plt.savefig(savename)
         
 
-def plot_single(fname,true_beta,savename,title=None,true_label='underlying',nrandom=100):
+
+def plot_single(fname,compare_beta,savename=None,title=None,label='Underlying Distribution',ax=None,c=None,
+                nrandom=2000,show_metric=True,show_underlying=True):
     '''
     A function to plot the inferred beta distributions from hierarchical MCMC samples
     as well as a second beta distribution (which could be any other beta distribution you 
     want to contrast with the inferred, such as an underlying distribution or a previous result)
-    
-    See '../example_plots/bd_uniform_inferred.png' for an example plot.
+
     Args:
+
         fname (str): Path to the file containing the hierarchical MCMC samples
-        true_beta (tuple of positive floats): Tuple of the form (a,b), where a,b 
+
+        compare_beta (tuple of positive floats): Tuple of the form (a,b), where a,b 
                                               are the beta parameters corresponding 
-                                              to the distribution that is being compared
-                                              against
-                                              
+                                              to the second distribution you are 
+                                              plotting
+
         savename (str): Savepath for the generated plot
+
         title (str): Title of the plot. Defaults to None
-        true_label (str): Label for the second beta distribution on the 
-                          plot. Defaults to 'underlying'.
-                          
-        nrandom (int): Number of randomly drawn distributions from the hierarchical 
-                       MCMC samples that are plotted. Defaults to 100
+
+        label (str): The label to assign to the second beta distribution on the 
+                     plot in the legend. Defaults to 'underlying'.
+        
+        ax  : Keyword that allows you to pass in a matplotlib axes object to plot_single.
+              Defaults to None. If ax is not None, then plot_single creates and 
+              returns a figure object. Handing in axes objects to plot_single using this 
+              keyword can allow the creation of multipanel plots such as Figures 2 and 8 
+              in Nagpal et. al (2022). These can be also be found in the 'example_plots' 
+              subdirectory of ePop! and are an example of the sorts of plots that can be made
+              using plot_single.  
+        
+        c : Color to plot the eccentricity distributions in. Must be a valid argument for 'c'
+            in matplotlib. Defaults to None, in which case the color defaults to pink.
+            
+        nrandom
     
     Returns:
-        fig (matplotlib.pyplot.Figure): A figure object that has all the plot information
+        
+        if ax is None:
+        
+            fig (matplotlib.pyplot.Figure): A figure object that has all the plot information
+        
+        else:
+            
+            Nothing is returned, the input axes object is plotted on directly.
+
     '''
     rng  = np.linspace(0.00001,0.99999,10000)
-    a,b = true_beta
+    a,b = compare_beta[0],compare_beta[1]
     func = beta(a,b)
-    fig=plt.figure(figsize=(8,6))
-    plt.plot(rng,func.pdf(rng),c='black',linestyle='dashed',linewidth=3,label=true_label)
-    beta_samples=np.load(fname)
-
-    for i in range(nrandom):
-        idx=np.random.randint(0,beta_samples.shape[0]-1)
-        rnd_a,rnd_b=beta_samples[idx]
-        rnd_func=beta(rnd_a,rnd_b)
-        plt.plot(rng,rnd_func.pdf(rng),c='grey',alpha=0.2)
-    
-    med_a,med_b=np.median(beta_samples,axis=0)[0],np.median(beta_samples,axis=0)[1]
-    med_func=beta(med_a,med_b)
-    plt.plot(rng,med_func.pdf(rng),c='red',linewidth=5,alpha=0.8,label='Median')
-    
-    plt.xlim([0,1])
-    plt.ylim([0,10])
 
 
-    plt.xlabel('Eccentricity')
-    plt.ylabel('Probability Density')
+    if c==None:
+        c='pink'
 
-    if title is None:
-        pass
-    else:
-        plt.title(title)
+    if ax is None:
+        plt.style.use('seaborn-bright')
+
+        fig,ax=plt.subplots(1,1,figsize=(16,12))
+
         
-    plt.legend()
-    plt.savefig(savename)
-    plt.close()
-    return fig
+        beta_samples=np.load(fname)
+        
+        if nrandom>beta_samples.shape[0]:
+            print(f'There are only {beta_samples.shape[0]} eccentricity distributions to plot!')
+            nrandom=beta_samples.shape[0]
+            
+        idx=np.random.randint(0,beta_samples.shape[0]-1,nrandom)
+        random_samples=beta_samples[idx]
+        random_samples=random_samples[random_samples[:,0].argsort()][::-1]
+        
+        for sample in random_samples:
+            rnd_a,rnd_b=sample
+            rnd_func=beta(rnd_a,rnd_b)
+            ax.plot(rng,rnd_func.pdf(rng),c=c,alpha=0.2)
+            
+            resid=np.sum(np.abs(rnd_func.pdf(rng)-func.pdf(rng))*np.median(np.diff(rng)))
+            metric+=resid/nrandom
+        
+
+        med_a,med_b=np.median(beta_samples,axis=0)[0],np.median(beta_samples,axis=0)[1]
+        med_func=beta(med_a,med_b)
+
+        ax.set_ylim([0,8])
+        ax.set_xlim([0,1])
+        
+        
+        if show_metric:
+            ax.text(7.5,7.3,'$\\mathcal{M}$='+f'{np.round(metric,2)}',fontsize=30)
+        
+        
+        #  beautification
+        [x.set_linewidth(5.0) for x in ax.spines.values()]
+
+        ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
+        ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
+
+        ax.tick_params(which='minor', length=6)
+        ax.xaxis.set_tick_params(which='minor',top=True,direction='inout',length=12)
+        ax.yaxis.set_tick_params(which='minor',right=True,direction='inout',length=12)
+
+        ax.tick_params(axis="x", direction="inout")
+        ax.tick_params(axis="y", direction="inout")
+        ax.tick_params(axis='x',labelsize=24,length=20)#, colors='white')
+        ax.tick_params(axis='y',labelsize=24,length=20)#, colors='white')
+        ax.tick_params(bottom=True, top=True, left=True, right=True)
 
 
+        ax.set_xlabel('Eccentricity',size=30)
+        ax.set_ylabel('Probability Density',size=30)
+
+        if title is not None:
+            ax.set_title(title,size=24)
+            
+        plt.legend(prop={'size': 16})
+        plt.savefig(savename,bbox_inches='tight')
+        plt.close()
+        return fig
+    
+    else:
+        
+        plt.rc('legend',fontsize=18)
+        plt.style.use('seaborn-bright')
+        
+        beta_samples=np.load(fname)
+        
+        if nrandom>beta_samples.shape[0]:
+            print(f'There are only {beta_samples.shape[0]} eccentricity distributions to plot!')
+            nrandom=beta_samples.shape[0]
+        
+        # plots nrandom eccentricity distributions drawn from the posterior
+        for i in range(nrandom):
+            idx=np.random.randint(0,beta_samples.shape[0]-1)
+            rnd_a,rnd_b=beta_samples[idx]
+            rnd_func=beta(rnd_a,rnd_b)
+            ax.plot(rng,rnd_func.pdf(rng),c=c,alpha=0.05)
+
+            resid=np.sum(np.abs(rnd_func.pdf(rng)-func.pdf(rng))*np.median(np.diff(rng)))
+            metric+=resid/nrandom
+        
+
+        med_a,med_b=np.median(beta_samples,axis=0)[0],np.median(beta_samples,axis=0)[1]
+        med_func=beta(med_a,med_b)
+        
+        # plots the median distribution
+        ax.plot(rng,med_func.pdf(rng),linewidth=5,alpha=0.9,c='black',label='$\\mathcal{M}$='+f'{np.round(metric,2)}')
+
+        ax.set_xlim([0,1])
+        ax.set_ylim([0,8])
+        
+        if show_metric:
+            ax.text(7.5,7.3,'$\\mathcal{M}$='+f'{np.round(metric,2)}',fontsize=30)
+
+
+        #  beautification
+        [x.set_linewidth(5.0) for x in ax.spines.values()]
+        ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
+        ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
+
+        ax.tick_params(which='minor', length=6)
+        ax.xaxis.set_tick_params(which='minor',top=True,direction='inout',length=12)
+        ax.yaxis.set_tick_params(which='minor',right=True,direction='inout',length=12)
+
+        ax.tick_params(axis="x", direction="inout")
+        ax.tick_params(axis="y", direction="inout")
+        ax.tick_params(axis='x',labelsize=24,length=20)#, colors='white')
+        ax.tick_params(axis='y',labelsize=24,length=20)#, colors='white')
+        ax.tick_params(bottom=True, top=True, left=True, right=True)
+
+        if show_underlying:
+            ax.plot(rng,func.pdf(rng),c='black',linestyle='dashed',linewidth=3)#,label='Warm Jupiter')
+
+
+        # copy-pasted END
+
+        ax.set_xlabel('Eccentricity',fontsize=25)
+        ax.set_ylabel('Probability Density',fontsize=25)
+
+        if title is None:
+            pass
+        else:
+            ax.set_title(title,fontsize=48,pad=40)
