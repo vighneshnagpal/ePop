@@ -38,12 +38,11 @@ like=ePop.hier_sim.Pop_Likelihood(posteriors=ecc_posteriors,prior='Gaussian')
 
 
 # NOTE: you can also load in samples from already saved eccentricity posteriors and
-# initialise a likelihod object as above. ecc_posteriors must be a list of which the
-# elements are the eccentricity samples for individual systems in the dataset. 
-# of 1D eccentricity samples. 
+# initialise a likelihod object as above. In this case, posteriors must be a list of 
+# 1D arrays, where the arrays are the 1D eccentricity posteriors for each system in the sapmle.  
 
 
-# sample the hyperparameters using MCMC
+# sample the hyperparameters using MCMC using 1000 steps.
 beta_samples=like.sample(1000,burn_steps=500,nwalkers=30)
 
 
