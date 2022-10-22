@@ -48,3 +48,5 @@ beta_samples=like.sample(1000,burn_steps=500,nwalkers=30)
 
 ```
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![DOI](https://zenodo.org/badge/371124285.svg)](https://zenodo.org/badge/latestdoi/371124285)
+
