@@ -220,7 +220,9 @@ def plot_single(fname,compare_beta,savename=None,title=None,label='Underlying Di
         c : Color to plot the eccentricity distributions in. Must be a valid argument for 'c'
             in matplotlib. Defaults to None, in which case the color defaults to pink.
             
-        nrandom
+        nrandom (int): Number of distributions to plot. The value of the argument defaults to 2000.
+                       If this is greater than the number of distributions in the posterior, then 
+                       the entire posterior of distributions is plotted. 
     
     Returns:
         
@@ -359,7 +361,6 @@ def plot_single(fname,compare_beta,savename=None,title=None,label='Underlying Di
             ax.plot(rng,func.pdf(rng),c='black',linestyle='dashed',linewidth=3)#,label='Warm Jupiter')
 
 
-        # copy-pasted END
 
         ax.set_xlabel('Eccentricity',fontsize=25)
         ax.set_ylabel('Probability Density',fontsize=25)
